@@ -1,3 +1,3 @@
 #!/bin/bash
 
-$( dirname "${BASH_SOURCE[0]}" )/exec-class.sh org.petapico.hubber.Hubber "$@"
+$( dirname "${BASH_SOURCE[0]}" )/exec-class.sh net.datasciencehub.hubber.Hubber "$@"

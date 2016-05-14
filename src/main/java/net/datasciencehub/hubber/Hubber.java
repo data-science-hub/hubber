@@ -1,4 +1,4 @@
-package org.petapico.hubber;
+package net.datasciencehub.hubber;
 
 import static spark.Spark.*;
 import spark.ModelAndView;
