@@ -25,6 +25,7 @@ public class Hubber {
 	}
 
 	public static void main(String[] args) {
+		staticFileLocation("/files");
 		Map<String,String> map = new HashMap<>();
 		map.put("title", "Hubber");
 		map.put("message", "This is Hubber.");
