@@ -12,7 +12,11 @@ import org.thymeleaf.templateresolver.TemplateResolver;
 
 public class Hubber {
 
-	static ThymeleafTemplateEngine tempEngine;
+	private static ThymeleafTemplateEngine tempEngine;
+
+	private static String orcidClientId = "APP-W02BIN0XPD5T5PFL";
+	private static String orcidScope = "/authenticate";
+	private static String orcidRedirectUrl = "https://developers.google.com/oauthplayground";
 
 	static {
 		TemplateResolver tr = new TemplateResolver();
@@ -29,6 +33,10 @@ public class Hubber {
 		Map<String,String> map = new HashMap<>();
 		map.put("title", "Hubber");
 		map.put("message", "This is Hubber.");
+		map.put("loginlink", "https://orcid.org/oauth/authorize?" +
+				"client_id=" + orcidClientId + "&" +
+				"response_type=code&scope=" + orcidScope + "&" +
+				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
 	}
 
