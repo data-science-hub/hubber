@@ -54,7 +54,7 @@ public class Hubber {
 			post.setHeader("Accept", "application/json");
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 			urlParameters.add(new BasicNameValuePair("client_id", conf.getOrcidClientId()));
-			urlParameters.add(new BasicNameValuePair("client_secret", ""));
+			urlParameters.add(new BasicNameValuePair("client_secret", conf.getOrcidClientSecret()));
 			urlParameters.add(new BasicNameValuePair("grant_type", "authorization_code"));
 			urlParameters.add(new BasicNameValuePair("redirect_uri", orcidRedirectUrl));
 			urlParameters.add(new BasicNameValuePair("code", authCode));
