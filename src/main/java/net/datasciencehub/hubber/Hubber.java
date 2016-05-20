@@ -61,11 +61,18 @@ public class Hubber {
 			post.setEntity(new UrlEncodedFormEntity(urlParameters));
 			HttpClient client = HttpClientBuilder.create().build();
 			HttpResponse response = client.execute(post);
-			System.err.println("Status Code: " + response.getStatusLine().getStatusCode());
-			String respString = IOUtils.toString(response.getEntity().getContent());
-			System.err.println("Response: " + respString);
-			rs.redirect("/");
-			return "";
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode >= 200 && statusCode < 300) {
+				// Success
+				String respString = IOUtils.toString(response.getEntity().getContent());
+				OrcidLoginResponse r = OrcidLoginResponse.fromJson(respString);
+				rs.cookie("orcid", r.getOrcid());
+				rs.redirect("/");
+				return "";
+			} else {
+				// Something went wrong
+				return statusCode + " " + response.getStatusLine().getReasonPhrase();
+			}
 		});
 	}
 
