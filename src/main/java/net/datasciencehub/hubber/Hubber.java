@@ -1,8 +1,6 @@
 package net.datasciencehub.hubber;
 
 import static spark.Spark.*;
-import spark.ModelAndView;
-import spark.template.thymeleaf.ThymeleafTemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +8,17 @@ import java.util.Map;
 import org.thymeleaf.resourceresolver.ClassLoaderResourceResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
+import spark.ModelAndView;
+import spark.template.thymeleaf.ThymeleafTemplateEngine;
+
 public class Hubber {
 
 	private static ThymeleafTemplateEngine tempEngine;
 
 	private static String orcidClientId = "APP-W02BIN0XPD5T5PFL";
 	private static String orcidScope = "/authenticate";
-	private static String orcidRedirectUrl = "https://developers.google.com/oauthplayground";
+	private static String orcidRedirectUrl = "http://hubber.tkuhn.eculture.labs.vu.nl/#login";
+	//private static String orcidRedirectUrl = "https://developers.google.com/oauthplayground";
 
 	static {
 		TemplateResolver tr = new TemplateResolver();
@@ -39,6 +41,12 @@ public class Hubber {
 				"scope=" + orcidScope + "&" +
 				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
+		get("/#login", (rq, rs) -> {
+			System.err.println("---");
+			System.err.println(rq.body());
+			System.err.println("---");
+			return "";
+		});
 	}
 
 }
