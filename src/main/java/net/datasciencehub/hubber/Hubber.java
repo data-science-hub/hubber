@@ -42,9 +42,7 @@ public class Hubber {
 				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
 		get("/login", (rq, rs) -> {
-			System.err.println("---");
-			System.err.println(rq.body());
-			System.err.println("---");
+			System.err.println("Code: " + rq.queryParams("code"));
 			return "";
 		});
 	}
