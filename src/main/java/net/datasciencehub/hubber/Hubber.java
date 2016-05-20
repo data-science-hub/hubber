@@ -25,10 +25,6 @@ public class Hubber {
 
 	private static ThymeleafTemplateEngine tempEngine;
 
-	private static String orcidClientId = "APP-W02BIN0XPD5T5PFL";
-	private static String orcidScope = "/authenticate";
-	private static String orcidRedirectUrl = "http://hubber.tkuhn.eculture.labs.vu.nl/login";
-
 	static {
 		TemplateResolver tr = new TemplateResolver();
 		tr.setTemplateMode("HTML5");
@@ -41,22 +37,23 @@ public class Hubber {
 
 	public static void main(String[] args) {
 		staticFileLocation("/files");
+		HubberConf conf = HubberConf.get();
+		String orcidRedirectUrl = conf.getWebsiteUrl() + "/login";
 		Map<String,String> map = new HashMap<>();
 		map.put("title", "Hubber");
 		map.put("message", "This is Hubber.");
 		map.put("loginlink", "https://orcid.org/oauth/authorize?" +
-				"client_id=" + orcidClientId + "&" +
+				"client_id=" + conf.getOrcidClientId() + "&" +
 				"response_type=code&" +
-				"scope=" + orcidScope + "&" +
+				"scope=/authenticate&" +
 				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
 		get("/login", (rq, rs) -> {
 			String authCode = rq.queryParams("code");
-			System.err.println("Authentication code: " + authCode);
 			HttpPost post = new HttpPost("https://orcid.org/oauth/token");
 			post.setHeader("Accept", "application/json");
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-			urlParameters.add(new BasicNameValuePair("client_id", orcidClientId));
+			urlParameters.add(new BasicNameValuePair("client_id", conf.getOrcidClientId()));
 			urlParameters.add(new BasicNameValuePair("client_secret", ""));
 			urlParameters.add(new BasicNameValuePair("grant_type", "authorization_code"));
 			urlParameters.add(new BasicNameValuePair("redirect_uri", orcidRedirectUrl));
@@ -67,6 +64,7 @@ public class Hubber {
 			System.err.println("Status Code: " + response.getStatusLine().getStatusCode());
 			String respString = IOUtils.toString(response.getEntity().getContent());
 			System.err.println("Response: " + respString);
+			rs.redirect("/");
 			return "";
 		});
 	}
