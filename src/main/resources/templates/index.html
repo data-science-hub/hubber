@@ -22,8 +22,7 @@
 <div id="navbar" class="collapse navbar-collapse">
 <ul class="nav navbar-nav">
   <li class="active"><a href="#">Home</a></li>
-  <li><a href="#about">About</a></li>
-  <li><a href="#contact">Contact</a></li>
+  <li><a href="#login" th:href="${loginlink}">Login with ORCID</a></li>
 </ul>
 </div>
 
@@ -35,9 +34,6 @@
 <div class="starter-template">
 <h1 th:text="${message}">Header text</h1>
 <p class="lead">Under construction...</p>
-<p>
-<a href="#login" th:href="${loginlink}">Login with ORCID</a>
-</p>
 </div>
 
 </div>

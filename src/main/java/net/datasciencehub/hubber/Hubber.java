@@ -35,7 +35,8 @@ public class Hubber {
 		map.put("message", "This is Hubber.");
 		map.put("loginlink", "https://orcid.org/oauth/authorize?" +
 				"client_id=" + orcidClientId + "&" +
-				"response_type=code&scope=" + orcidScope + "&" +
+				"response_type=code&" +
+				"scope=" + orcidScope + "&" +
 				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
 	}
