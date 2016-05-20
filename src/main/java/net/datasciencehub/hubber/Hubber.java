@@ -17,7 +17,7 @@ public class Hubber {
 
 	private static String orcidClientId = "APP-W02BIN0XPD5T5PFL";
 	private static String orcidScope = "/authenticate";
-	private static String orcidRedirectUrl = "http://hubber.tkuhn.eculture.labs.vu.nl/#login";
+	private static String orcidRedirectUrl = "http://hubber.tkuhn.eculture.labs.vu.nl/login";
 	//private static String orcidRedirectUrl = "https://developers.google.com/oauthplayground";
 
 	static {
@@ -41,7 +41,7 @@ public class Hubber {
 				"scope=" + orcidScope + "&" +
 				"redirect_uri=" + orcidRedirectUrl);
 		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
-		get("/#login", (rq, rs) -> {
+		get("/login", (rq, rs) -> {
 			System.err.println("---");
 			System.err.println(rq.body());
 			System.err.println("---");
