@@ -84,7 +84,7 @@ public class Hubber {
 				String respString = IOUtils.toString(response.getEntity().getContent());
 				OrcidLoginResponse r = OrcidLoginResponse.fromJson(respString);
 				rs.cookie("orcid", r.getOrcid());
-				rs.cookie("orcid-access-token", r.getOrcid());
+				rs.cookie("orcid-access-token", r.getAccessToken());
 				users.put(r.getOrcid(), r);
 				rs.redirect("/");
 				return "";
