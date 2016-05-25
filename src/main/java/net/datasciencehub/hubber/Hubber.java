@@ -18,6 +18,8 @@ import org.thymeleaf.resourceresolver.ClassLoaderResourceResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
 import spark.ModelAndView;
+import spark.Request;
+import spark.Response;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import spark.utils.IOUtils;
 
@@ -42,29 +44,22 @@ public class Hubber {
 		HubberConf conf = HubberConf.get();
 		String orcidRedirectUrl = conf.getWebsiteUrl() + "/login";
 		get("/", (rq, rs) -> {
-			String orcid = null;
-			String orcidC = rq.cookie("orcid");
-			String orcidAccessTokenC = rq.cookie("orcid-access-token");
-			if (orcidC != null && users.containsKey(orcidC) && users.get(orcidC).getAccessToken().equals(orcidAccessTokenC)) {
-				orcid = orcidC;
-			} else {
-				rs.cookie("orcid", null);
-				rs.cookie("orcid-access-token", null);
-			}
+			OrcidLoginResponse u = getUser(rq, rs);
 			Map<String,String> map = new HashMap<>();
 			map.put("title", "Hubber");
 			map.put("message", "This is Hubber.");
-			if (orcid == null) {
+			if (u == null) {
 				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
 						"client_id=" + conf.getOrcidClientId() + "&" +
 						"response_type=code&" +
 						"scope=/authenticate&" +
 						"redirect_uri=" + orcidRedirectUrl);
 				map.put("logintext", "Login");
+				map.put("logouttext", "");
 			} else {
-				OrcidLoginResponse u = users.get(orcid);
-				map.put("loginlink", "." + orcidRedirectUrl);
-				map.put("logintext", u.getName() + " (" + orcid + ")");
+				map.put("loginlink", "https://orcid.org/" + u.getOrcid());
+				map.put("logintext", u.getName() + " (" + u.getOrcid() + ")");
+				map.put("logouttext", "Logout");
 			}
 			return new ModelAndView(map, "index");
 		}, tempEngine);
@@ -96,6 +91,29 @@ public class Hubber {
 				return statusCode + " " + response.getStatusLine().getReasonPhrase();
 			}
 		});
+		get("/logout", (rq, rs) -> {
+			OrcidLoginResponse u = getUser(rq, rs);
+			if (u != null) {
+				users.remove(u.getOrcid());
+				rs.cookie("orcid", null);
+				rs.cookie("orcid-access-token", null);
+			}
+			rs.redirect("/");
+			return null;
+		});
+	}
+
+	private static OrcidLoginResponse getUser(Request rq, Response rs) {
+		String orcidC = rq.cookie("orcid");
+		String orcidAccessTokenC = rq.cookie("orcid-access-token");
+		if (orcidC != null && users.containsKey(orcidC) && users.get(orcidC).getAccessToken().equals(orcidAccessTokenC)) {
+			return users.get(orcidC);
+		} else {
+			rs.cookie("orcid", null);
+			rs.cookie("orcid-access-token", null);
+			return null;
+		}
+		
 	}
 
 }
