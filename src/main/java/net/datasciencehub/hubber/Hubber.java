@@ -45,8 +45,11 @@ public class Hubber {
 			String orcid = null;
 			String orcidC = rq.cookie("orcid");
 			String orcidAccessTokenC = rq.cookie("orcid-access-token");
-			if (orcidC != null && users.get(orcidC).getAccessToken().equals(orcidAccessTokenC)) {
+			if (orcidC != null && users.containsKey(orcidC) && users.get(orcidC).getAccessToken().equals(orcidAccessTokenC)) {
 				orcid = orcidC;
+			} else {
+				rs.cookie("orcid", null);
+				rs.cookie("orcid-access-token", null);
 			}
 			Map<String,String> map = new HashMap<>();
 			map.put("title", "Hubber");
