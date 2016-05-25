@@ -25,6 +25,8 @@ public class Hubber {
 
 	private static ThymeleafTemplateEngine tempEngine;
 
+	private static Map<String,OrcidLoginResponse> users = new HashMap<>();
+
 	static {
 		TemplateResolver tr = new TemplateResolver();
 		tr.setTemplateMode("HTML5");
@@ -39,15 +41,30 @@ public class Hubber {
 		staticFileLocation("/files");
 		HubberConf conf = HubberConf.get();
 		String orcidRedirectUrl = conf.getWebsiteUrl() + "/login";
-		Map<String,String> map = new HashMap<>();
-		map.put("title", "Hubber");
-		map.put("message", "This is Hubber.");
-		map.put("loginlink", "https://orcid.org/oauth/authorize?" +
-				"client_id=" + conf.getOrcidClientId() + "&" +
-				"response_type=code&" +
-				"scope=/authenticate&" +
-				"redirect_uri=" + orcidRedirectUrl);
-		get("/", (rq, rs) -> new ModelAndView(map, "index"), tempEngine);
+		get("/", (rq, rs) -> {
+			String orcid = null;
+			String orcidC = rq.cookie("orcid");
+			String orcidAccessTokenC = rq.cookie("orcid-access-token");
+			if (orcidC != null && users.get(orcidC).getAccessToken().equals(orcidAccessTokenC)) {
+				orcid = orcidC;
+			}
+			Map<String,String> map = new HashMap<>();
+			map.put("title", "Hubber");
+			map.put("message", "This is Hubber.");
+			if (orcid == null) {
+				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
+						"client_id=" + conf.getOrcidClientId() + "&" +
+						"response_type=code&" +
+						"scope=/authenticate&" +
+						"redirect_uri=" + orcidRedirectUrl);
+				map.put("logintext", "Login");
+			} else {
+				OrcidLoginResponse u = users.get(orcid);
+				map.put("loginlink", "." + orcidRedirectUrl);
+				map.put("logintext", u.getName() + " (" + orcid + ")");
+			}
+			return new ModelAndView(map, "index");
+		}, tempEngine);
 		get("/login", (rq, rs) -> {
 			String authCode = rq.queryParams("code");
 			HttpPost post = new HttpPost("https://orcid.org/oauth/token");
@@ -67,6 +84,8 @@ public class Hubber {
 				String respString = IOUtils.toString(response.getEntity().getContent());
 				OrcidLoginResponse r = OrcidLoginResponse.fromJson(respString);
 				rs.cookie("orcid", r.getOrcid());
+				rs.cookie("orcid-access-token", r.getOrcid());
+				users.put(r.getOrcid(), r);
 				rs.redirect("/");
 				return "";
 			} else {
