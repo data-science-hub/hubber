@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title th:text="${title}">Hubber</title>
+<title data-th-text="${title}">Hubber</title>
 <link rel="stylesheet" href="css/bootstrap.min.css"/>
 <link rel="stylesheet" href="css/bootstrap-theme.min.css"/>
 <link href="css/style.css" rel="stylesheet"/>
@@ -16,14 +16,14 @@
 <div class="container">
 
 <div class="navbar-header">
-<a class="navbar-brand" href="#" th:text="${title}">Project name</a>
+<a class="navbar-brand" href="#" data-th-text="${title}">Project name</a>
 </div>
 
 <div id="navbar" class="collapse navbar-collapse">
 <ul class="nav navbar-nav">
   <li class="active"><a href="#">Home</a></li>
-  <li><a href="#login" th:href="${loginlink}" th:text="${logintext}">Login</a></li>
-  <li><a href="/logout" th:text="${logouttext}">Logout</a></li>
+  <li><a href="#login" data-th-href="${loginlink}" data-th-text="${logintext}">Login</a></li>
+  <li><a href="/logout" data-th-text="${logouttext}">Logout</a></li>
 </ul>
 </div>
 
@@ -33,7 +33,7 @@
 <div class="container">
 
 <div class="starter-template">
-<h1 th:text="${message}">Header text</h1>
+<h1 data-th-text="${message}">Header text</h1>
 <p class="lead">Under construction...</p>
 </div>
 
