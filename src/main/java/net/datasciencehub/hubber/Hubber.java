@@ -45,21 +45,21 @@ public class Hubber {
 		String orcidRedirectUrl = conf.getWebsiteUrl() + "/login";
 		get("/", (rq, rs) -> {
 			OrcidLoginResponse u = getUser(rq, rs);
-			Map<String,String> map = new HashMap<>();
+			Map<String,Object> map = new HashMap<>();
 			map.put("title", "Hubber");
 			map.put("message", "This is Hubber.");
-			if (u == null) {
+			boolean loggedin = (u != null);
+			map.put("loggedin", loggedin);
+			if (loggedin) {
+				map.put("loginlink", "https://orcid.org/" + u.getOrcid());
+				map.put("logintext", u.getName() + " (" + u.getOrcid() + ")");
+			} else {
 				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
 						"client_id=" + conf.getOrcidClientId() + "&" +
 						"response_type=code&" +
 						"scope=/authenticate&" +
 						"redirect_uri=" + orcidRedirectUrl);
 				map.put("logintext", "Login");
-				map.put("logouttext", "");
-			} else {
-				map.put("loginlink", "https://orcid.org/" + u.getOrcid());
-				map.put("logintext", u.getName() + " (" + u.getOrcid() + ")");
-				map.put("logouttext", "Logout");
 			}
 			return new ModelAndView(map, "index");
 		}, tempEngine);

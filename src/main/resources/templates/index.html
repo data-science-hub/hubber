@@ -23,7 +23,7 @@
 <ul class="nav navbar-nav">
   <li class="active"><a href="#">Home</a></li>
   <li><a href="#login" data-th-href="@{${loginlink}}" data-th-text="${logintext}">Login</a></li>
-  <li><a href="/logout" data-th-text="${logouttext}">Logout</a></li>
+  <li><a href="/logout" data-th-if="${loggedin}">Logout</a></li>
 </ul>
 </div>
 
