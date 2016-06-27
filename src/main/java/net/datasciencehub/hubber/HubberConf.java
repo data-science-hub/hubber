@@ -50,16 +50,8 @@ public class HubberConf {
 		}
 	}
 
-	public String getWebsiteUrl() {
-		return conf.getProperty("website.url");
-	}
-
-	public String getOrcidClientId() {
-		return conf.getProperty("orcid.client.id");
-	}
-
-	public String getOrcidClientSecret() {
-		return conf.getProperty("orcid.client.secret");
+	public String get(String name) {
+		return conf.getProperty(name);
 	}
 
 }

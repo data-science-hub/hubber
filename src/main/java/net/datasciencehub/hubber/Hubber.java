@@ -42,12 +42,12 @@ public class Hubber {
 	public static void main(String[] args) {
 		staticFileLocation("/files");
 		HubberConf conf = HubberConf.get();
-		String orcidRedirectUrl = conf.getWebsiteUrl() + "/login";
+		String orcidRedirectUrl = conf.get("website.url") + "/login";
 		get("/", (rq, rs) -> {
 			OrcidLoginResponse u = getUser(rq, rs);
 			Map<String,Object> map = new HashMap<>();
-			map.put("title", "Hubber");
-			map.put("message", "This is Hubber.");
+			map.put("title", conf.get("website.name"));
+			map.put("message", conf.get("website.message"));
 			boolean loggedin = (u != null);
 			map.put("loggedin", loggedin);
 			if (loggedin) {
@@ -55,7 +55,7 @@ public class Hubber {
 				map.put("orcidlink", "https://orcid.org/" + u.getOrcid());
 			} else {
 				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
-						"client_id=" + conf.getOrcidClientId() + "&" +
+						"client_id=" + conf.get("orcid.client.id") + "&" +
 						"response_type=code&" +
 						"scope=/authenticate&" +
 						"redirect_uri=" + orcidRedirectUrl);
@@ -66,13 +66,13 @@ public class Hubber {
 			String authCode = rq.queryParams("code");
 			HttpPost post = new HttpPost("https://orcid.org/oauth/token");
 			post.setHeader("Accept", "application/json");
-			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-			urlParameters.add(new BasicNameValuePair("client_id", conf.getOrcidClientId()));
-			urlParameters.add(new BasicNameValuePair("client_secret", conf.getOrcidClientSecret()));
-			urlParameters.add(new BasicNameValuePair("grant_type", "authorization_code"));
-			urlParameters.add(new BasicNameValuePair("redirect_uri", orcidRedirectUrl));
-			urlParameters.add(new BasicNameValuePair("code", authCode));
-			post.setEntity(new UrlEncodedFormEntity(urlParameters));
+			List<NameValuePair> urlParams = new ArrayList<NameValuePair>();
+			urlParams.add(new BasicNameValuePair("client_id", conf.get("orcid.client.id")));
+			urlParams.add(new BasicNameValuePair("client_secret", conf.get("orcid.client.secret")));
+			urlParams.add(new BasicNameValuePair("grant_type", "authorization_code"));
+			urlParams.add(new BasicNameValuePair("redirect_uri", orcidRedirectUrl));
+			urlParams.add(new BasicNameValuePair("code", authCode));
+			post.setEntity(new UrlEncodedFormEntity(urlParams));
 			HttpClient client = HttpClientBuilder.create().build();
 			HttpResponse response = client.execute(post);
 			int statusCode = response.getStatusLine().getStatusCode();
