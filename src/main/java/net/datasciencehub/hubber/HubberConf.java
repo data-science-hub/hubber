@@ -49,7 +49,7 @@ public class HubberConf {
 		}
 	}
 
-	public String get(String name) {
+	public String property(String name) {
 		return conf.getProperty(name);
 	}
 
