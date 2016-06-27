@@ -1,5 +1,10 @@
 package net.datasciencehub.hubber;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +29,8 @@ public class TripleStoreAccess {
 			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 			"prefix rdfg: <http://www.w3.org/2004/03/trix/rdfg-1/> " +
 			"prefix owl: <http://www.w3.org/2002/07/owl#> " +
-			"prefix dc: <http://purl.org/dc/terms/> " +
+			"prefix dct: <http://purl.org/dc/terms/> " +
+			"prefix dce: <http://purl.org/dc/elements/1.1/> " +
 			"prefix pav: <http://purl.org/pav/> " +
 			"prefix prov: <http://www.w3.org/ns/prov#> " +
 			"prefix foaf: <http://xmlns.com/foaf/0.1/> ";
@@ -36,7 +42,7 @@ public class TripleStoreAccess {
 		try {
 			repo.initialize();
 		} catch (Exception ex) {
-			logger.error("Failed to connect to SPARQL endpoint",  ex);
+			logger.error("Failed to connect to SPARQL endpoint", ex);
 			System.exit(1);
 		}
 	}
@@ -70,6 +76,38 @@ public class TripleStoreAccess {
 			connection.close();
 		}
 		return tuples;
+	}
+	
+	public static void runUpdateQuery(String... queries) {
+		for (String qu : queries) {
+			// Update queries don't seem to work with Virtuoso via SPARQLRepository...
+			try {
+				URL url = new URL(endpointURL);
+			    URLConnection connection = url.openConnection();
+			    connection.setDoOutput(true);
+			    OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+			    wr.write("query=" + URLEncoder.encode(sparqlPrefixes + qu, "UTF8"));
+			    wr.flush();
+			    connection.getInputStream().close();
+			} catch (IOException ex) {
+				logger.error("Failed to run update query", ex);
+			}
+		}
+	}
+
+	public static String get(String property) {
+		String p = property;
+		if (property.matches("https?://.*")) {
+			p = "<" + property + ">";
+		}
+		List<BindingSet> results = getTuples(
+			"SELECT ?o WHERE { " +
+				"graph <" + HubberConf.get().property("graph.uri") + "> " +
+				"{<" + HubberConf.get().property("website.url") + "> " + p + " ?o} " +
+			"} LIMIT 1"
+		);
+		if (results.isEmpty()) return null;
+		return results.get(0).getValue("o").stringValue();
 	}
 
 }

@@ -1,6 +1,7 @@
 package net.datasciencehub.hubber;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.staticFileLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +10,11 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.openrdf.query.BindingSet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.thymeleaf.resourceresolver.ClassLoaderResourceResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
@@ -41,6 +41,7 @@ public class Hubber {
 	}
 
 	public static void main(String[] args) {
+
 		staticFileLocation("/files");
 		HubberConf conf = HubberConf.get();
 		String orcidRedirectUrl = conf.property("website.url") + "/login";
@@ -50,13 +51,13 @@ public class Hubber {
 			map.put("title", conf.property("website.name"));
 			map.put("message", conf.property("website.message"));
 
-			// Testing triple store access:
-			String test = "";
-			for (BindingSet bs : TripleStoreAccess.getTuples("select distinct ?Concept where {[] a ?Concept} LIMIT 100")) {
-				test += bs.getBinding("Concept").getValue() + " ";
-			}
+			// Testing triple store update:
+			TripleStoreAccess.runUpdateQuery("INSERT DATA INTO GRAPH <" + HubberConf.get().property("graph.uri") + "> " +
+					"{ <" + HubberConf.get().property("website.url") + "> dce:description \"this is just a test\" } ");
 
-			map.put("message", test);
+			// Testing triple store access:
+			map.put("message", TripleStoreAccess.get("dce:description") + "");
+
 			boolean loggedin = (u != null);
 			map.put("loggedin", loggedin);
 			if (loggedin) {
