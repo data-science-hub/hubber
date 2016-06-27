@@ -3,7 +3,9 @@ package net.datasciencehub.hubber;
 import static spark.Spark.get;
 import static spark.Spark.staticFileLocation;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +54,7 @@ public class Hubber {
 			map.put("message", conf.property("website.message"));
 
 			// Testing triple store update:
-			TripleStoreAccess.runUpdateQuery("INSERT DATA INTO GRAPH <" + HubberConf.get().property("graph.uri") + "> " +
-					"{ <" + HubberConf.get().property("website.url") + "> dce:description \"this is just a test\" } ");
+			TripleStoreAccess.set("dce:description", "Test: " + SimpleDateFormat.getInstance().format(new Date()));
 
 			// Testing triple store access:
 			map.put("message", TripleStoreAccess.get("dce:description") + "");

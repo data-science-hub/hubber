@@ -95,19 +95,46 @@ public class TripleStoreAccess {
 		}
 	}
 
+	private static final String getQueryTemplate =
+			"SELECT ?o WHERE { GRAPH <@GRAPHURI@> {<@SITEURI@> @PROPERTY@ ?o} } LIMIT 1";
+
 	public static String get(String property) {
-		String p = property;
-		if (property.matches("https?://.*")) {
-			p = "<" + property + ">";
-		}
-		List<BindingSet> results = getTuples(
-			"SELECT ?o WHERE { " +
-				"graph <" + HubberConf.get().property("graph.uri") + "> " +
-				"{<" + HubberConf.get().property("website.url") + "> " + p + " ?o} " +
-			"} LIMIT 1"
-		);
+		String q = getQueryTemplate;
+		q = q.replace("@GRAPHURI@", HubberConf.get().property("graph.uri"));
+		q = q.replace("@SITEURI@", HubberConf.get().property("website.url"));
+		q = q.replace("@PROPERTY@", encloseUri(property));
+		List<BindingSet> results = getTuples(q);
 		if (results.isEmpty()) return null;
 		return results.get(0).getValue("o").stringValue();
+	}
+
+	private static final String setQueryTemplate1 =
+			"DELETE FROM <@GRAPHURI@> {<@SITEURI@> @PROPERTY@ ?o} WHERE {<@SITEURI@> @PROPERTY@ ?o}";
+	private static final String setQueryTemplate2 =
+			"INSERT INTO <@GRAPHURI@> {<@SITEURI@> @PROPERTY@ @VALUE@}";
+
+	public static void set(String property, String value) {
+		String q1 = setQueryTemplate1;
+		q1 = q1.replace("@GRAPHURI@", HubberConf.get().property("graph.uri"));
+		q1 = q1.replace("@SITEURI@", HubberConf.get().property("website.url"));
+		q1 = q1.replace("@PROPERTY@", encloseUri(property));
+		String q2 = setQueryTemplate2;
+		q2 = q2.replace("@GRAPHURI@", HubberConf.get().property("graph.uri"));
+		q2 = q2.replace("@SITEURI@", HubberConf.get().property("website.url"));
+		q2 = q2.replace("@PROPERTY@", encloseUri(property));
+		q2 = q2.replace("@VALUE@", escapeLiteral(value));
+		runUpdateQuery(q1, q2);
+	}
+
+	private static String encloseUri(String uri) {
+		if (uri.matches("https?://.*")) {
+			return "<" + uri + ">";
+		}
+		return uri;
+	}
+
+	private static String escapeLiteral(String literal) {
+		return "\"" + literal.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
 	}
 
 }
