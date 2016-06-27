@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.openrdf.query.BindingSet;
 import org.thymeleaf.resourceresolver.ClassLoaderResourceResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
@@ -48,6 +49,14 @@ public class Hubber {
 			Map<String,Object> map = new HashMap<>();
 			map.put("title", conf.property("website.name"));
 			map.put("message", conf.property("website.message"));
+
+			// Testing triple store access:
+			String test = "";
+			for (BindingSet bs : TripleStoreAccess.getTuples("select distinct ?Concept where {[] a ?Concept} LIMIT 100")) {
+				test += bs.getBinding("Concept").getValue() + " ";
+			}
+
+			map.put("message", test);
 			boolean loggedin = (u != null);
 			map.put("loggedin", loggedin);
 			if (loggedin) {

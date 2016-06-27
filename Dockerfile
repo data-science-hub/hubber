@@ -2,6 +2,7 @@ FROM ubuntu:16.04
 RUN apt-get -y update
 RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y maven
+RUN apt-get install -y virtuoso-opensource
 WORKDIR /opt/application
 ADD . /opt/application
 RUN mvn compile

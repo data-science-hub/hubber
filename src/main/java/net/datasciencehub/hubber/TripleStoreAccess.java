@@ -3,7 +3,6 @@ package net.datasciencehub.hubber;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openrdf.OpenRDFException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
@@ -44,39 +43,31 @@ public class TripleStoreAccess {
 
 	public static boolean isTrue(String query) {
 		boolean isTrue = false;
+		RepositoryConnection connection = repo.getConnection();
 		try {
-			RepositoryConnection connection = repo.getConnection();
-			try {
-				BooleanQuery booleanQuery = connection.prepareBooleanQuery(lang, sparqlPrefixes + query);
-				isTrue = booleanQuery.evaluate();
-			} finally {
-				connection.close();
-			}
-		} catch (OpenRDFException ex) {
-			logger.error("Error processing query", ex);
+			BooleanQuery booleanQuery = connection.prepareBooleanQuery(lang, sparqlPrefixes + query);
+			isTrue = booleanQuery.evaluate();
+		} finally {
+			connection.close();
 		}
 		return isTrue;
 	}
-	
+
 	public static List<BindingSet> getTuples(String query) {
 		List<BindingSet> tuples = new ArrayList<BindingSet>();
+		RepositoryConnection connection = repo.getConnection();
 		try {
-			RepositoryConnection connection = repo.getConnection();
+			TupleQuery tupleQuery = connection.prepareTupleQuery(lang, sparqlPrefixes + query);
+			TupleQueryResult result = tupleQuery.evaluate();
 			try {
-				TupleQuery tupleQuery = connection.prepareTupleQuery(lang, sparqlPrefixes + query);
-				TupleQueryResult result = tupleQuery.evaluate();
-				try {
-					while (result.hasNext()) {
-						tuples.add(result.next());
-					}
-				} finally {
-					result.close();
+				while (result.hasNext()) {
+					tuples.add(result.next());
 				}
 			} finally {
-				connection.close();
+				result.close();
 			}
-		} catch (OpenRDFException ex) {
-			logger.error("Error processing query", ex);
+		} finally {
+			connection.close();
 		}
 		return tuples;
 	}
