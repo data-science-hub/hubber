@@ -52,6 +52,7 @@ public class Hubber {
 			map.put("loggedin", loggedin);
 			if (loggedin) {
 				map.put("username", u.getName() + " (" + u.getOrcid() + ")");
+				map.put("orcidlink", "https://orcid.org/" + u.getOrcid());
 			} else {
 				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
 						"client_id=" + conf.getOrcidClientId() + "&" +
