@@ -51,15 +51,13 @@ public class Hubber {
 			boolean loggedin = (u != null);
 			map.put("loggedin", loggedin);
 			if (loggedin) {
-				map.put("loginlink", "https://orcid.org/" + u.getOrcid());
-				map.put("logintext", u.getName() + " (" + u.getOrcid() + ")");
+				map.put("username", u.getName() + " (" + u.getOrcid() + ")");
 			} else {
 				map.put("loginlink", "https://orcid.org/oauth/authorize?" +
 						"client_id=" + conf.getOrcidClientId() + "&" +
 						"response_type=code&" +
 						"scope=/authenticate&" +
 						"redirect_uri=" + orcidRedirectUrl);
-				map.put("logintext", "Login");
 			}
 			return new ModelAndView(map, "index");
 		}, tempEngine);
